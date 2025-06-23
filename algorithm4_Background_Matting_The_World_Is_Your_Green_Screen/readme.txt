@@ -1,0 +1,3 @@
+打开test_dataset
+其中backgrounds文件夹放背景，images放人物像，masks放掩码，portrails放原图（图片名称相同）
+打开test.py运行，结果输出在test_results

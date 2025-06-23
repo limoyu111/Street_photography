@@ -1,0 +1,7 @@
+平均测试指标:
+fg_psnr: 25.2524
+alpha_psnr: 31.8134
+fg_ssim: 0.9014
+alpha_ssim: 0.9917
+fg_mse: 0.0030
+alpha_mse: 0.0007
