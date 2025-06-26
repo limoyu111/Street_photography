@@ -3,11 +3,9 @@ import torch
 import cv2
 import numpy as np
 from torchvision import transforms
-from torchvision.transforms import functional as TF
-from PIL import Image, ImageTk
+from PIL import Image
 import tkinter as tk
 from tkinter import filedialog, messagebox
-import clip
 
 # 定义 preprocess 函数
 preprocess = transforms.Compose([
@@ -19,7 +17,7 @@ preprocess = transforms.Compose([
 
 # 加载 CLIP 模型
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-clip_model, _ = clip.load("ViT-B/32", device=device)
+# clip_model, _ = clip.load("ViT-B/32", device=device)
 
 # 定义扩散模型
 class DiffusionModel(torch.nn.Module):
@@ -86,13 +84,12 @@ class ImageGeneratorApp:
 
         # 设置默认模型路径
         self.model_path = tk.StringVar(value="D:\\streetphoto\\Street_photography\\algorithm1_Exemplar-based Image Editing with Diffusion Models\\models\\diffmodel2.pth")
-        self.background_image_path = tk.StringVar()
-        self.person_image_path = tk.StringVar()
-        self.mask_image_path = tk.StringVar()
+        self.background_image_folder = tk.StringVar()
+        self.person_image_folder = tk.StringVar()
+        self.mask_image_folder = tk.StringVar()
         self.output_directory = tk.StringVar()
 
         self.model = None
-        self.image_counter = 1  # 用于生成文件名的计数器
 
         self.create_widgets()
 
@@ -101,50 +98,50 @@ class ImageGeneratorApp:
         tk.Entry(self.root, textvariable=self.model_path, width=50).grid(row=0, column=1, padx=10, pady=10)
         tk.Button(self.root, text="Browse", command=self.browse_model).grid(row=0, column=2, padx=10, pady=10)
 
-        tk.Label(self.root, text="Background Image:").grid(row=1, column=0, padx=10, pady=10)
-        tk.Entry(self.root, textvariable=self.background_image_path, width=50).grid(row=1, column=1, padx=10, pady=10)
-        tk.Button(self.root, text="Browse", command=self.browse_background_image).grid(row=1, column=2, padx=10, pady=10)
+        tk.Label(self.root, text="Background Image Folder:").grid(row=1, column=0, padx=10, pady=10)
+        tk.Entry(self.root, textvariable=self.background_image_folder, width=50).grid(row=1, column=1, padx=10, pady=10)
+        tk.Button(self.root, text="Browse", command=self.browse_background_folder).grid(row=1, column=2, padx=10, pady=10)
 
-        tk.Label(self.root, text="Person Image:").grid(row=2, column=0, padx=10, pady=10)
-        tk.Entry(self.root, textvariable=self.person_image_path, width=50).grid(row=2, column=1, padx=10, pady=10)
-        tk.Button(self.root, text="Browse", command=self.browse_person_image).grid(row=2, column=2, padx=10, pady=10)
+        tk.Label(self.root, text="Person Image Folder:").grid(row=2, column=0, padx=10, pady=10)
+        tk.Entry(self.root, textvariable=self.person_image_folder, width=50).grid(row=2, column=1, padx=10, pady=10)
+        tk.Button(self.root, text="Browse", command=self.browse_person_folder).grid(row=2, column=2, padx=10, pady=10)
 
-        tk.Label(self.root, text="Mask Image:").grid(row=3, column=0, padx=10, pady=10)
-        tk.Entry(self.root, textvariable=self.mask_image_path, width=50).grid(row=3, column=1, padx=10, pady=10)
-        tk.Button(self.root, text="Browse", command=self.browse_mask_image).grid(row=3, column=2, padx=10, pady=10)
+        tk.Label(self.root, text="Mask Image Folder:").grid(row=3, column=0, padx=10, pady=10)
+        tk.Entry(self.root, textvariable=self.mask_image_folder, width=50).grid(row=3, column=1, padx=10, pady=10)
+        tk.Button(self.root, text="Browse", command=self.browse_mask_folder).grid(row=3, column=2, padx=10, pady=10)
 
         tk.Label(self.root, text="Output Directory:").grid(row=4, column=0, padx=10, pady=10)
         tk.Entry(self.root, textvariable=self.output_directory, width=50).grid(row=4, column=1, padx=10, pady=10)
         tk.Button(self.root, text="Browse", command=self.browse_output_directory).grid(row=4, column=2, padx=10, pady=10)
 
-        tk.Button(self.root, text="Generate Image", command=self.generate_image).grid(row=5, column=1, padx=10, pady=10)
+        tk.Button(self.root, text="Generate Images", command=self.generate_images).grid(row=5, column=1, padx=10, pady=10)
 
     def browse_model(self):
         path = filedialog.askopenfilename(title="Select Model File", filetypes=[("Model files", "*.pth")])
         if path:
             self.model_path.set(path)
 
-    def browse_background_image(self):
-        path = filedialog.askopenfilename(title="Select Background Image", filetypes=[("Image files", "*.jpg;*.png")])
+    def browse_background_folder(self):
+        path = filedialog.askdirectory(title="Select Background Image Folder")
         if path:
-            self.background_image_path.set(path)
+            self.background_image_folder.set(path)
 
-    def browse_person_image(self):
-        path = filedialog.askopenfilename(title="Select Person Image", filetypes=[("Image files", "*.jpg;*.png")])
+    def browse_person_folder(self):
+        path = filedialog.askdirectory(title="Select Person Image Folder")
         if path:
-            self.person_image_path.set(path)
+            self.person_image_folder.set(path)
 
-    def browse_mask_image(self):
-        path = filedialog.askopenfilename(title="Select Mask Image", filetypes=[("Image files", "*.jpg;*.png")])
+    def browse_mask_folder(self):
+        path = filedialog.askdirectory(title="Select Mask Image Folder")
         if path:
-            self.mask_image_path.set(path)
+            self.mask_image_folder.set(path)
 
     def browse_output_directory(self):
         path = filedialog.askdirectory(title="Select Output Directory")
         if path:
             self.output_directory.set(path)
 
-    def generate_image(self):
+    def generate_images(self):
         try:
             if not self.model:
                 self.model = load_model(self.model_path.get(), device)
@@ -156,25 +153,34 @@ class ImageGeneratorApp:
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ])
 
-            background_image = process_input_image(self.background_image_path.get(), transform)
-            person_image = process_input_image(self.person_image_path.get(), transform)
-
-            mask_image = cv2.imread(self.mask_image_path.get(), cv2.IMREAD_GRAYSCALE)
-            if mask_image is None:
-                raise ValueError(f"Failed to load mask image: {self.mask_image_path.get()}")
-            mask_image = cv2.resize(mask_image, (512, 512))  # 调整到 512x512
-            mask_image = torch.tensor(mask_image, dtype=torch.float32).unsqueeze(0).unsqueeze(0) / 255.0
-
-            output_image = generate_output(self.model, background_image, person_image, mask_image)
-
+            background_folder = self.background_image_folder.get()
+            person_folder = self.person_image_folder.get()
+            mask_folder = self.mask_image_folder.get()
             output_directory = self.output_directory.get()
-            os.makedirs(output_directory, exist_ok=True)
-            output_image_path = os.path.join(output_directory, f"outputp_{self.image_counter}.jpg")
-            save_image(output_image, output_image_path)
 
-            self.image_counter += 1  # 更新文件名计数器
+            if not os.path.exists(output_directory):
+                os.makedirs(output_directory)
 
-            messagebox.showinfo("Success", "Image generated successfully!")
+            background_images = [os.path.join(background_folder, f) for f in os.listdir(background_folder) if f.endswith(('.jpg', '.png'))]
+            person_images = [os.path.join(person_folder, f) for f in os.listdir(person_folder) if f.endswith(('.jpg', '.png'))]
+            mask_images = [os.path.join(mask_folder, f) for f in os.listdir(mask_folder) if f.endswith(('.jpg', '.png'))]
+
+            for i in range(len(background_images)):
+                background_image = process_input_image(background_images[i], transform)
+                person_image = process_input_image(person_images[i], transform)
+
+                mask_image = cv2.imread(mask_images[i], cv2.IMREAD_GRAYSCALE)
+                if mask_image is None:
+                    raise ValueError(f"Failed to load mask image: {mask_images[i]}")
+                mask_image = cv2.resize(mask_image, (512, 512))  # 调整到 512x512
+                mask_image = torch.tensor(mask_image, dtype=torch.float32).unsqueeze(0).unsqueeze(0) / 255.0
+
+                output_image = generate_output(self.model, background_image, person_image, mask_image)
+
+                output_image_path = os.path.join(output_directory, f"output_{i + 1}.jpg")
+                save_image(output_image, output_image_path)
+
+            messagebox.showinfo("Success", "Images generated successfully!")
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
