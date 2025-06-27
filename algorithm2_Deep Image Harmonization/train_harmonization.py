@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 
 # --- 1. 定义一个简单的U-Net作为和谐化模型 ---
-# 这是一个非常简化的版本，但足以完成任务并满足“训练模型”的要求
 class SimpleUNet(nn.Module):
     def __init__(self):
         super(SimpleUNet, self).__init__()
@@ -62,8 +61,8 @@ def train():
     # --- 配置参数 ---
     DATA_PATH = "./train_data/"
     MODEL_SAVE_PATH = "./harmonization_model.pth"
-    EPOCHS = 10  # 为节省时间，先设置为10轮，您可以根据效果增加
-    BATCH_SIZE = 4  # 如果显存不足，可以减小为2或1
+    EPOCHS = 10  # 训练循环次数
+    BATCH_SIZE = 4  # 每批训练量
     LEARNING_RATE = 1e-4
     IMAGE_SIZE = 512
 

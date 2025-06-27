@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-# --- 配置您的原始数据路径 ---
+# --- 配置原始数据路径 ---
 PERSON_DIR = "./datasets/person_image/"
 BACKGROUND_DIR = "./datasets/background_image/"
 ORIGINAL_DIR = "./datasets/original_image/"
@@ -40,7 +40,7 @@ def prepare():
             continue
 
         # 创建“假的”合成图：直接将人像按遮罩粘贴到背景上
-        # 注意：这里我们用背景图乘以（1-mask），再加上人像图乘以mask
+        # 这里用背景图乘以（1-mask），再加上人像图乘以mask
         mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR) / 255.0
         composite = background * (1 - mask_3channel) + person * mask_3channel
         composite = composite.astype(np.uint8)

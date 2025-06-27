@@ -29,7 +29,6 @@ class SimpleUNet(nn.Module):
 
 
 # --- 2. 配置输入和输出文件路径 ---
-# 已将文件名修正为 .png
 PERSON_IMAGE_PATH = "person_input.png"
 BACKGROUND_IMAGE_PATH = "background_input.png"
 MASK_PATH = "mask.png"
@@ -65,9 +64,8 @@ def run_harmonization():
     background_resized = cv2.resize(background_bgr, (IMAGE_SIZE, IMAGE_SIZE))
     mask_resized = cv2.resize(mask_gray, (IMAGE_SIZE, IMAGE_SIZE))
 
-    # --- 新增步骤：对蒙版边缘进行羽化（高斯模糊）---
+    # 对蒙版边缘进行羽化（高斯模糊）---
     # ksize的两个值都必须是奇数，值越大，羽化/模糊效果越强。
-    # (9, 9) 是一个不错的起点，您可以尝试增大(如15,15)或减小(如5,5)它。
     print("对蒙版边缘进行羽化处理以实现平滑过渡...")
     mask_blurred = cv2.GaussianBlur(mask_resized, (9, 9), 0)
 
@@ -81,7 +79,7 @@ def run_harmonization():
     composite_uint8 = (composite_float * 255).astype(np.uint8)
 
     composite_pil = Image.fromarray(cv2.cvtColor(composite_uint8, cv2.COLOR_BGR2RGB))
-    # 注意：输入给AI模型的蒙版仍然是清晰的原始蒙版，以确保AI知道准确的和谐化区域
+    # 输入给AI模型的蒙版仍然是清晰的原始蒙版，以确保AI知道准确的和谐化区域
     mask_pil = Image.fromarray(mask_resized)
 
     # --- 5. 执行AI和谐化 ---
